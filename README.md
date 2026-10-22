@@ -1,5 +1,12 @@
 # @red-cup-engineering/derive-hive-account-ledger-service
 
+<!-- 561-group-standards:badges:start -->
+[![Red Cup Engineering](https://img.shields.io/badge/561%20Group-Red%20Cup%20Engineering-c0392b)](https://github.com/red-cup-engineering)
+[![License: MIT](https://img.shields.io/badge/license-MIT-c0392b)](LICENSE)
+[![Indigenous data: CARE](https://img.shields.io/badge/Indigenous%20data-CARE-4b6f44)](https://github.com/red-cup-engineering/.github/blob/main/GOVERNANCE.md)
+[![Tips welcome](https://img.shields.io/badge/tips-welcome-d4a017)](https://github.com/561-group/.github/blob/main/TIPS.md)
+<!-- 561-group-standards:badges:end -->
+
 Pure transformation deriving a complete Beancount ledger for one Hive account from its mainchain operation history (`@red-cup-engineering/read-hive-account-history-service`), its Hive-Engine operation history (`@red-cup-engineering/read-hive-engine-account-history-service`), and the account's opening/closing chain balances. Reward income is booked exactly once, at the chain-confirmed `claim_reward_balance` (never at the still-pending `author_reward`/`curation_reward` accrual, which would double-count value that has not yet reached the tracked balance), split across `Income:Hive:Author` and `Income:Hive:Curation` in proportion to each kind's pending accrual since the last claim. `interest` books to `Income:Hive:Interest`. Hive-Engine distributions/token issuance book to `Income:Hive:Staking`; tribe curation rewards book to `Income:Hive:Curation`. Plain transfers (either chain) book to `Income:Hive:Other`/`Expenses:Hive:Other`. Vesting (power up/down) and HBD-savings and Hive-Engine staking lifecycles are booked as commodity conversions between the account's own sub-accounts, never as income. Every venue fill — the Hive base-layer internal market (`fill_order`) and every Hive-Engine market/pool fill — is rendered by composing `@red-cup-engineering/derive-set-of-fill-transactions-service`, isolated to a dedicated `:Trading` sub-account so FIFO cost tracking never mixes with the plain (uncosted) reward/transfer flow held in the main custody account. Opening balances are booked at the range start and a `balance` assertion is written at the range end from a live chain read, alongside a computed-vs-chain comparison for the caller to act on.
 
 ## Limitation, stated plainly
